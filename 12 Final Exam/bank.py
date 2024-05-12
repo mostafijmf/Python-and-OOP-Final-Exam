@@ -2,12 +2,18 @@ from abc import ABC
 from random import randint
 from datetime import datetime
 
+
 class Bank(ABC):
     def __init__(self):
         self.name = 'IBBL'
         self.users = []
         self.total_balance = 100000
         self.is_loan_active = True
+    
+    def get_user(self, email):
+        for user in bank.users:
+            if user.email.lower() == email.lower():
+                return user
 
     def user_deposit(self, user, amount):
         for index, u in enumerate(self.users):
@@ -48,16 +54,11 @@ class Bank(ABC):
 bank = Bank()
 
 
-class User(ABC):
-    def __init__(self, name, email, address) -> None:
+class AccountHolder:
+    def __init__(self, name, email, address, account_type):
         self.name = name
         self.email = email
         self.address = address
-
-
-class AccountHolder(User):
-    def __init__(self, name, email, address, account_type):
-        super().__init__(name, email, address)
         self.account_number = randint(10000, 999999)
         self.account_type = account_type
         self.balance = 0
@@ -150,10 +151,14 @@ class AccountHolder(User):
             print("Account does not exist")
 
 
-class Admin(User):
-    def __init__(self, name, email, address, password) -> None:
-        super().__init__(name, email, address)
-        self.password = password
+class Admin:
+    def __init__(self) -> None:
+        self.email = 'admin@gmail.com'
+        self.password = 123456
+
+    def create_user(self, name, email, address, account_type):
+        user = AccountHolder(name, email, address, account_type)
+        return print(f'User account: {user.email} was created successfully')
 
     def find_user(self, email):
         for user in bank.users:
@@ -192,51 +197,53 @@ class Admin(User):
             print("Loan feature is on")
 
 
-
-
 # ********** replica system ******************
 def admin():
-    name = input('Enter Name: ')
     email = input('Enter Email: ')
-    address = input('Enter Address: ')
     password = int(input('Enter Number Password: '))
-    ad = Admin(name, email, address, password)
-    while True:
-        print(f"************ Welcome {ad.name}! ************")
-        print("1. Delete a user account")
-        print("2. Show all users")
-        print("3. Check the Bank balance")
-        print("4. Check the total loan")
-        print("5. On or Off the loan feature")
-        print("6. Exit")
-        opt = input('Enter Option: ')
-        if opt == '6':
-            break
-        elif opt == '1':
-            email = input('Enter user email: ')
-            ad.delete_user(email)
-        elif opt == '2':
-            ad.show_users()
-        elif opt == '3':
-            ad.check_bank_balance()
-        elif opt == '4':
-            ad.check_total_loan()
-        elif opt == '5':
-            ad.loan_feature()
-        else:
-            print("Invalid option!")
+    ad = Admin()
+    if ad.email == email and ad.password == password:
+        while True:
+            print(f"************ Welcome Admin! ************")
+            print("1. Create a user account")
+            print("2. Delete a user account")
+            print("3. Show all users")
+            print("4. Check the Bank balance")
+            print("5. Check the total loan")
+            print("6. On or Off the loan feature")
+            print("7. Exit")
+            opt = input('Enter Option: ')
+            if opt == '7':
+                break
+            elif opt == '1':
+                name = input('Enter Name: ')
+                email = input('Enter Email: ')
+                address = input('Enter Address: ')
+                print("****** Choose user account type ******")
+                print("1. Savings")
+                print("2. Current")
+                acc_opt = int(input("Enter option: "))
+                account_type = ['savings', 'current']
+                ad.create_user(name, email, address, account_type[acc_opt-1])
+
+            elif opt == '2':
+                user_email = input('Enter user email: ')
+                ad.delete_user(user_email)
+            elif opt == '3':
+                ad.show_users()
+            elif opt == '4':
+                ad.check_bank_balance()
+            elif opt == '5':
+                ad.check_total_loan()
+            elif opt == '6':
+                ad.loan_feature()
+            else:
+                print("Invalid option!")
+    else:
+        print('Wrong email or password. Please try again')
 
 
-def user():
-    name = input('Enter Name: ')
-    email = input('Enter Email: ')
-    address = input('Enter Address: ')
-    print("****** Choose user account type ******")
-    print("1. Savings")
-    print("2. Current")
-    acc_opt = int(input("Enter option: "))
-    account_type = ['savings', 'current']
-    user = AccountHolder(name, email, address, account_type[acc_opt-1])
+def user_func(user):
     while True:
         print(f"************ Welcome {user.name}! ************")
         print("1. Check balance")
@@ -273,14 +280,32 @@ def user():
 while True:
     print("************ Welcome! ************")
     print("1. Admin")
-    print("2. User")
-    print("3. Exit")
+    print("2. Login User")
+    print("3. Register User")
+    print("4. Exit")
     opt = input('Enter Option: ')
-    if opt == '3':
+    if opt == '4':
         break
     elif opt == '1':
         admin()
     elif opt == '2':
-        user()
+        email = input('Enter Email: ')
+        user = bank.get_user(email)
+        if user:
+            user_func(user)
+        else:
+            print('No user exist with this email')
+        
+    elif opt == '3':
+        name = input('Enter Name: ')
+        email = input('Enter Email: ')
+        address = input('Enter Address: ')
+        print("****** Choose user account type ******")
+        print("1. Savings")
+        print("2. Current")
+        acc_opt = int(input("Enter option: "))
+        account_type = ['savings', 'current']
+        user = AccountHolder(name, email, address, account_type[acc_opt-1])
+        user_func(user)
     else:
         print("Invalid option!")
